@@ -17,15 +17,26 @@ from train import data_transforms
 class Resnet():
     def __init__(self, cuda_num=0):
         self.device = torch.device("cuda:{}".format(cuda_num) if torch.cuda.is_available() else "cpu")		
-		# state dick VERSION
-        self.model_ft = torchvision.models.resnet18(pretrained=False)
-        num_ftrs = self.model_ft.fc.in_features
-        self.model_ft.fc = nn.Linear(num_ftrs, 2)
-        self.path_to_state_dict = './model/state_dict_v1.pt'
-        self.model_ft.load_state_dict(torch.load(self.path_to_state_dict, map_location=self.device))
-        self.model_ft.to(self.device)
-        self.model_ft.eval()
-        self.model_ft.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.load_net(1)
+
+    def load_net(self, param=1):
+        if param == 0:
+            # state dick VERSION
+            self.model_ft = torchvision.models.resnet18(pretrained=False)
+            num_ftrs = self.model_ft.fc.in_features
+            self.model_ft.fc = nn.Linear(num_ftrs, 2)
+            self.path_to_state_dict = './model/state_dict_v1.pt'
+            self.model_ft.load_state_dict(torch.load(self.path_to_state_dict, map_location=self.device))
+            self.model_ft.to(self.device)
+            self.model_ft.eval()
+            self.model_ft.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        else:
+            #FULL MODEL LOAD
+            self.path_to_model = "./model/resnet18_free_zone.pt"
+            self.model_ft = torch.load(self.path_to_model, map_location=self.device)
+            self.model_ft.to(self.device)
+            self.model_ft.eval()
+            self.model_ft.avgpool = nn.AdaptiveAvgPool2d((1,1))
 
     def get_weights(self, image, test_transforms=data_transforms["val"]):
         image = Image.fromarray(image)
@@ -34,7 +45,6 @@ class Resnet():
         input = image_tensor.to(self.device)
         output = self.model_ft(input)
         weights=(torch.nn.functional.softmax(output, dim=1).data.cpu().numpy())
-        #weights = output.data.cpu().numpy()
         print (weights[0])
         return weights[0]
 
