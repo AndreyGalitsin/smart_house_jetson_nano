@@ -6,8 +6,10 @@ def get_faces_database(img_path_arr, name_arr):
     known_faces = []
     known_face_names = []
 
-    for i in range(len(img_path_arr)):
+    #for i in range(len(img_path_arr)):
+    for i in range(1):
         image = face_recognition.load_image_file(img_path_arr[i])
+        print('@@@@@', face_recognition.face_encodings(image))
         face_encoding = face_recognition.face_encodings(image)[0]
 
         known_faces.append(face_encoding)

@@ -26,14 +26,12 @@ model_trt = TRTModule()
 model_trt.load_state_dict(torch.load(OPTIMIZED_MODEL))
 '''
 import time
-
 t0 = time.time()
 torch.cuda.current_stream().synchronize()
 for i in range(50):
     y = model_trt(data)
 torch.cuda.current_stream().synchronize()
 t1 = time.time()
-
 print(50.0 / (t1 - t0))
 '''
 import cv2
@@ -59,51 +57,6 @@ from trt_pose.parse_objects import ParseObjects
 parse_objects = ParseObjects(topology)
 draw_objects = DrawObjects(topology)
 
-
-
-def func_1():
-    cv2.namedWindow('Detecto')
-    device = 0
-    try:
-        video = cv2.VideoCapture(device)
-        video.set(cv2.CAP_PROP_BUFFERSIZE, 3)
-        print(video.isOpened())
-    except:
-        print('No webcam available.')
-        return
-    counter = 0
-    while True:
-        counter += 1
-        ret, frame = video.read()
-        if not ret:
-            continue
-
-        if counter % 1 == 0:
-            counter = 0
-
-            data = preprocess(frame)
-            cmap, paf = model_trt(data)
-            cmap, paf = cmap.detach().cpu(), paf.detach().cpu()
-            counts, objects, peaks = parse_objects(cmap, paf)#, cmap_threshold=0.15, link_threshold=0.15)
-            draw_objects(frame, counts, objects, peaks)
-            cv2.imwrite('./picture_2.jpeg', frame)
-            print('frame', frame)
-            print('counts', counts)
-            print('objects', objects)
-            print('peaks', peaks)
-
-            cv2.imshow('Detecto', frame)
-
-            # If the 'q' or ESC key is pressed, break from the loop
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord('q') or key == 27:
-                break
-        else:
-            continue
-        
-    cv2.destroyWindow('Detecto')
-    video.release()
-
 def func_2():
     from jetcam.usb_camera import USBCamera
     from jetcam.utils import bgr8_to_jpeg
@@ -128,20 +81,8 @@ def func_2():
         counts, objects, peaks = parse_objects(cmap, paf)#, cmap_threshold=0.15, link_threshold=0.15)
         draw_objects(image, counts, objects, peaks)
         cv2.imwrite('./picture.jpeg', image)
-        print('frame', image)
-        print('counts', counts)
-        print('objects', objects)
-        print('peaks', peaks)
-
-        cv2.imshow('Detecto', image)
-
-        # If the 'q' or ESC key is pressed, break from the loop
-        #key = cv2.waitKey(1) & 0xFF
-        #if key == ord('q') or key == 27:
-        #    break
-
-        #image_w.value = bgr8_to_jpeg(image[:, ::-1, :])
-        #decoded = cv2.imdecode(np.frombuffer(image_w.value, np.uint8), cv2.IMREAD_COLOR)
+  
+        print('peaks', peaks.shape, peaks[:, :, 0, :], peaks[:, :, 10, :])
 
     camera.observe(execute, names='value')
 
