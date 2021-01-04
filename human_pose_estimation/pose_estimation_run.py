@@ -38,6 +38,7 @@ class PoseEstimation:
         self.draw_objects = DrawObjects(self.topology)
 
     def preprocess(self, image):
+        image = cv2.resize(image, dsize=(self.WIDTH, self.HEIGHT), interpolation=cv2.INTER_AREA)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = PIL.Image.fromarray(image)
         image = transforms.functional.to_tensor(image).to(self.device)
@@ -77,8 +78,8 @@ class PoseEstimation:
 
 if __name__ == "__main__":
     pose_estimation = PoseEstimation()
-    pose_estimation.func_2()
-    '''
+    #pose_estimation.func_2()
+    
     cam = cv2.VideoCapture(0)
     process_this_frame = True
     while True:
@@ -90,7 +91,7 @@ if __name__ == "__main__":
             break
         process_this_frame = not process_this_frame
     cv2.destroyAllWindows()
-    '''
+    
 
 
 '''
