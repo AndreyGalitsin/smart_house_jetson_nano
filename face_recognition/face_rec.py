@@ -30,9 +30,7 @@ class FaceRec:
 
         return known_faces, known_face_names
 
-
     def label_results(self, frame, face_locations, face_names):
-
         for (top, right, bottom, left), name in zip(face_locations, face_names):          
             if not name:            
                 continue    
@@ -131,9 +129,3 @@ if __name__ == "__main__":
             break
         process_this_frame = not process_this_frame
     cv2.destroyAllWindows()
-
-    
-
-
-
-
