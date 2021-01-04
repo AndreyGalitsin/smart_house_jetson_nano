@@ -1,68 +1,36 @@
 import cv2
 import face_recognition
 import numpy as np
+import sys
 
-def get_faces_database(img_path_arr, name_arr):  
-    known_faces = []
-    known_face_names = []
+class FaceRec:
+    def __init__(self):
+        self.img_path_arr = [
+        "face_1.jpg", 
+        "face_2.jpg"]
 
-    #for i in range(len(img_path_arr)):
-    for i in range(1):
-        image = face_recognition.load_image_file(img_path_arr[i])
-        print('@@@@@', face_recognition.face_encodings(image))
-        face_encoding = face_recognition.face_encodings(image)[0]
+        self.name_arr = [
+            "Andrey",
+            "Sergey"
+            ]
 
-        known_faces.append(face_encoding)
-        known_face_names.append(name_arr[i])
+        self.known_faces, self.known_face_names = self.get_faces_database()
 
-    return known_faces, known_face_names
+    def get_faces_database(self):  
+        known_faces = []
+        known_face_names = []
 
+        for i in range(len(self.img_path_arr)):
+        #for i in range(1):
+            image = face_recognition.load_image_file(self.img_path_arr[i])
+            face_encoding = face_recognition.face_encodings(image)[0]
 
-def main(img_path_arr, name_arr):
-    video_capture = cv2.VideoCapture(0)
-    known_faces, known_face_names = get_faces_database(img_path_arr, name_arr)
-    # Initialize variables
-    face_locations = []
-    face_encodings = []
-    face_names = []
+            known_faces.append(face_encoding)
+            known_face_names.append(self.name_arr[i])
 
-    process_this_frame = True
-    
-    while True:
-            
-        # Grab a single frame of video
-            
-        ret, frame = video_capture.read()
+        return known_faces, known_face_names
 
-        # Resize frame of video to 1/4 size for faster face recognition processing
-        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-        #frame = small_frame
-            
-        # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)    
-        rgb_frame = frame[:, :, ::-1]
-
-        if process_this_frame:
-            # Find all the faces and face encodings in the current frame of video
-            face_locations = face_recognition.face_locations(rgb_frame, model="cnn")
-            face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-
-            face_names = []
-            for face_encoding in face_encodings:
-                # See if the face is a match for the known face(s)
-                matches = face_recognition.compare_faces(known_faces, face_encoding)
-                name = "Unknown"
-
-                # Or instead, use the known face with the smallest distance to the new face
-                face_distances = face_recognition.face_distance(known_faces, face_encoding)
-                best_match_index = np.argmin(face_distances)
-                if matches[best_match_index]:
-                    name = known_face_names[best_match_index]
-
-                face_names.append(name)
-
-        process_this_frame = not process_this_frame  
-            
-        # Label the results      
+    def label_results(self, frame, face_locations, face_names):
         for (top, right, bottom, left), name in zip(face_locations, face_names):          
             if not name:            
                 continue    
@@ -71,26 +39,98 @@ def main(img_path_arr, name_arr):
             font = cv2.FONT_HERSHEY_DUPLEX
                 
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+        return frame
 
-        cv2.imshow('Video', frame)
+    def get_face_locations(self, rgb_frame):
+        face_locations = face_recognition.face_locations(rgb_frame, model="cnn")
 
+        return face_locations
+
+    def get_face_names(self,rgb_frame, face_locations):
+        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+        face_names = []
+        for face_encoding in face_encodings:
+            # See if the face is a match for the known face(s)
+            matches = face_recognition.compare_faces(self.known_faces, face_encoding)
+            name = "Unknown"
+
+            # Or instead, use the known face with the smallest distance to the new face
+            face_distances = face_recognition.face_distance(self.known_faces, face_encoding)
+            best_match_index = np.argmin(face_distances)
+            if matches[best_match_index]:
+                name = self.known_face_names[best_match_index]
+
+            face_names.append(name)
+
+        return face_names
+
+    def get_face_rec(self, frame):
+        rgb_frame = frame[:, :, ::-1]
+
+        face_locations = self.get_face_locations(rgb_frame)
+        face_names = self.get_face_names(rgb_frame, face_locations)
+        last_frame = self.label_results(frame, face_locations, face_names)
+        return last_frame, face_names
+
+    def show_result(self, last_frame):
+        cv2.imshow('Face recognition', last_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'): 	
-            break
+            sys.exit()
 
-    input_movie.release()
-    cv2.destroyAllWindows()
+    def identificate_person(self, face_names):
+        if len(face_names) > 0:
+            if not 'Unknown' in face_names:
+                #turn signalisation off
+                print('turn signalisation off')
+                return 1
+            else:
+                return 0
+
+    def main(self):
+        cam = cv2.VideoCapture(0)
+        process_this_frame = True
+        
+        while True:
+            _, frame = cam.read()
+            # Resize frame of video to 1/4 size for faster face recognition processing
+            small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+            frame = small_frame
+
+            if process_this_frame:
+                last_frame, face_names = self.get_face_rec(frame)
+            
+            self.show_result(last_frame)
+            identification = self.identificate_person(face_names)
+            process_this_frame = not process_this_frame
+
+        cv2.destroyAllWindows()
+
+    def main_for_img(self, frame):
+        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+        frame = small_frame
+
+        last_frame, face_names = self.get_face_rec(frame)
+        identification = self.identificate_person(face_names)
+
+        return last_frame, identification
 
 if __name__ == "__main__":
-    img_path_arr = [
-    "face_1.jpg", 
-    "face_2.jpg"]
+    face_rec = FaceRec()
+    #face_rec.main()
 
-    name_arr = [
-        "Andrey",
-        "Sergey"
-        ]
+    cam = cv2.VideoCapture(0)
+    process_this_frame = True
+    while True:
+        _, frame = cam.read()
+        if process_this_frame:
+            last_frame, identification = face_rec.main_for_img(frame)
+        cv2.imshow('Face recognition', last_frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'): 	
+            break
+        process_this_frame = not process_this_frame
+    cv2.destroyAllWindows()
 
-    main(img_path_arr, name_arr)
+    
 
 
 
