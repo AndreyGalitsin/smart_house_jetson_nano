@@ -74,13 +74,14 @@ def func_2():
 
 
     def execute(change):
+        print('chadge', change)
         image = change['new']
         data = preprocess(image)
         cmap, paf = model_trt(data)
         cmap, paf = cmap.detach().cpu(), paf.detach().cpu()
         counts, objects, peaks = parse_objects(cmap, paf)#, cmap_threshold=0.15, link_threshold=0.15)
-        draw_objects(image, counts, objects, peaks)
-        cv2.imwrite('./picture.jpeg', image)
+        #draw_objects(image, counts, objects, peaks)
+        #cv2.imwrite('./picture.jpeg', image)
   
         print('peaks', peaks.shape, peaks[:, :, 0, :], peaks[:, :, 10, :])
 

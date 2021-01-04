@@ -36,7 +36,7 @@ def main(img_path_arr, name_arr):
 
         # Resize frame of video to 1/4 size for faster face recognition processing
         small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-        #frame = small_frame
+        frame = small_frame
             
         # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)    
         rgb_frame = frame[:, :, ::-1]
