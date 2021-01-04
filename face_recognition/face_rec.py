@@ -7,11 +7,12 @@ class FaceRec:
     def __init__(self):
         self.img_path_arr = [
         "face_1.jpg", 
-        "face_2.jpg"]
+        #"face_2.jpg"
+        ]
 
         self.name_arr = [
             "Andrey",
-            "Sergey"
+            #"Sergey"
             ]
 
         self.known_faces, self.known_face_names = self.get_faces_database()
