@@ -46,7 +46,7 @@ class PoseEstimation:
         return image[None, ...]
 
     def execute(self, image):
-        data = preprocess(image)
+        data = self.preprocess(image)
         cmap, paf = self.model_trt(data)
         cmap, paf = cmap.detach().cpu(), paf.detach().cpu()
         counts, objects, peaks = self.parse_objects(cmap, paf)#, cmap_threshold=0.15, link_threshold=0.15)
@@ -56,20 +56,41 @@ class PoseEstimation:
         print('peaks', peaks.shape, peaks[:, :, 0, :], peaks[:, :, 10, :])
         return image
 
+    def execute_(self, change):
+        image = change['new']
+        data = self.preprocess(image)
+        cmap, paf = self.model_trt(data)
+        cmap, paf = cmap.detach().cpu(), paf.detach().cpu()
+        counts, objects, peaks = self.parse_objects(cmap, paf)#, cmap_threshold=0.15, link_threshold=0.15)
+        self.draw_objects(image, counts, objects, peaks)
+        cv2.imwrite('./picture.jpeg', image)
+
+        print('peaks', peaks.shape, peaks[:, :, 0, :], peaks[:, :, 10, :])
+
+    def func_2(self):
+        camera = USBCamera(capture_device = 0)
+        camera.running = True
+        image_w = ipywidgets.Image(format='jpeg')
+        display(image_w)
+
+        camera.observe(self.execute_, names='value')
+
 if __name__ == "__main__":
     pose_estimation = PoseEstimation()
-
+    pose_estimation.func_2()
+    '''
     cam = cv2.VideoCapture(0)
     process_this_frame = True
     while True:
         _, frame = cam.read()
         if process_this_frame:
-            last_frame = pose_estimation.esecute(frame)
+            last_frame = pose_estimation.execute(frame)
         cv2.imshow('pose estimation', last_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'): 	
             break
         process_this_frame = not process_this_frame
     cv2.destroyAllWindows()
+    '''
 
 
 '''
