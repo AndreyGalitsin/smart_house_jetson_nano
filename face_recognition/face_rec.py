@@ -118,7 +118,7 @@ class FaceRec:
 if __name__ == "__main__":
     face_rec = FaceRec()
     #face_rec.main()
-
+    '''
     cam = cv2.VideoCapture(0)
     process_this_frame = True
     while True:
@@ -129,4 +129,29 @@ if __name__ == "__main__":
         if cv2.waitKey(1) & 0xFF == ord('q'): 	
             break
         process_this_frame = not process_this_frame
+    cv2.destroyAllWindows()
+    '''
+
+
+    cam = cv2.VideoCapture(0)
+    counter = 0
+    while True:
+        counter += 1
+        _, frame = cam.read()
+
+        if counter % 30 == 0:
+            counter = 0
+            if frame is not None:
+                last_frame, identification = face_rec.main_for_img(frame)
+
+                cv2.imshow('Pose estimation', last_frame)
+
+                if cv2.waitKey(1) & 0xFF == ord('q'): 	
+                    break
+            else:
+                print("cannot receive img from camera")
+                cam = cv2.VideoCapture(0)
+                time.sleep(0.01)
+        else:
+            continue
     cv2.destroyAllWindows()

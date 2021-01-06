@@ -187,12 +187,3 @@ if __name__ == "__main__":
         else:
             continue
     cv2.destroyAllWindows()
-
-    '''
-    parser = argparse.ArgumentParser(description='TensorRT pose estimation run')
-    parser.add_argument('--image', type=str, default='./test.jpg')
-    args = parser.parse_args()
-    image = cv2.imread(args.image, cv2.IMREAD_COLOR)
-    res = pose_estimation.main(image)
-    #res.save('./%s.png'%('aaa'))
-    '''
