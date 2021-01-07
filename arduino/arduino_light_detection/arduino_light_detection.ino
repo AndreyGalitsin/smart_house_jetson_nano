@@ -14,7 +14,8 @@ void setup()
   // открываем последовательный порт
   Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
-  mq2.calibrate();
+  mq2.heaterPwrHigh();
+  //mq2.calibrate();
   //Serial.print("Ro = ");
   //Serial.println(mq2.getRo());
 }
@@ -26,33 +27,37 @@ void detection()
   float methane;
   float smoke;
   float hydrogen;
-  lgp, methane, smoke, hydrogen = fire_detection();
+  smoke = fire_detection_v2();
 
-  StaticJsonDocument<200> jsonDocument;
-  jsonDocument["Light"] = light;
-  jsonDocument["LGP"] = lgp;
-  jsonDocument["Methane"] = methane;
-  jsonDocument["Smoke"] = smoke;
-  jsonDocument["Hydrogen"] = hydrogen;
-  char buffer[200];
-  serializeJsonPretty(jsonDocument, buffer);
-  //Serial.println(buffer);
+  //StaticJsonDocument<200> jsonDocument;
+  //jsonDocument["Light"] = light;
+  //jsonDocument["LGP"] = lgp;
+  //jsonDocument["Methane"] = methane;
+  //jsonDocument["Smoke"] = smoke;
+  //jsonDocument["Hydrogen"] = hydrogen;
+  //char buffer[200];
+  //serializeJsonPretty(jsonDocument, buffer);
 
   Serial.print("{");
   Serial.print("\"Light\": ");
   Serial.print(light);
   Serial.print(", ");
-  Serial.print("\"LGP\": ");
-  Serial.print(lgp);
-  Serial.print(", ");
-  Serial.print("\"Methane\": ");
-  Serial.print(methane);
-  Serial.print(", ");
+  
+  //Serial.print("\"LGP\": ");
+  //Serial.print(lgp);
+  //Serial.print(", ");
+  
+  //Serial.print("\"Methane\": ");
+  //Serial.print(methane);
+  //Serial.print(", ");
+  
   Serial.print("\"Smoke\": ");
   Serial.print(smoke);
-  Serial.print(", ");
-  Serial.print("\"Hydrogen\": ");
-  Serial.print(hydrogen);
+  //Serial.print(", ");
+  
+  //Serial.print("\"Hydrogen\": ");
+  //Serial.print(hydrogen);
+  
   Serial.println("}");
   
 }
@@ -79,6 +84,32 @@ float fire_detection()
   float hydrogen = mq2.readHydrogen();
   return lgp, methane, smoke, hydrogen;
 
+}
+
+float fire_detection_v2()
+{
+  // выводим отношения текущего сопротивление датчика
+  // к сопротивлению датчика в чистом воздухе (Rs/Ro)
+  //Serial.print("Ratio: ");
+  //Serial.print(mq2.readRatio());
+    // если прошёл интервал нагрева датчика
+  // и калибровка не была совершена
+  if (!mq2.isCalibrated() && mq2.heatingCompleted()) {
+    // выполняем калибровку датчика на чистом воздухе
+    mq2.calibrate();
+    // выводим сопротивление датчика в чистом воздухе (Ro) в serial-порт
+    //Serial.print("Ro = ");
+    //Serial.println(mq2.getRo());
+  }
+  if (mq2.isCalibrated() && mq2.heatingCompleted()) {
+    // выводим значения газов в ppm
+    float lgp = mq2.readLPG();
+    float methane = mq2.readMethane();
+    float smoke = mq2.readSmoke();
+    float hydrogen = mq2.readHydrogen();
+    //return lgp, methane, smoke, hydrogen;
+    return smoke;
+  }
 }
  
 void loop()
