@@ -174,7 +174,9 @@ if __name__ == "__main__":
         if counter % 60 == 0:
             counter = 0
             if frame is not None:
+                a=time.time()
                 res = pose_estimation.main(frame)
+                print(time.time()-a)
                 res = cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
                 cv2.imshow('Pose estimation', res)
 

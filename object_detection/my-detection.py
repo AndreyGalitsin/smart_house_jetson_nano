@@ -4,6 +4,7 @@ import datetime
 import cv2
 import numpy as np
 import random
+import time
 
 class ObjDet:
     def __init__(self):
@@ -64,8 +65,9 @@ if __name__ == "__main__":
         if counter % 30 == 0:
             counter = 0
             if frame is not None:
+                a=time.time()
                 last_frame = object_det.main(frame)
-
+                print('TIME IS', time.time()-a)
                 cv2.imshow('Object detection', last_frame)
 
                 if cv2.waitKey(1) & 0xFF == ord('q'): 	

@@ -2,6 +2,7 @@ import cv2
 import face_recognition
 import numpy as np
 import sys
+import time
 
 class FaceRec:
     def __init__(self):
@@ -142,9 +143,10 @@ if __name__ == "__main__":
         if counter % 30 == 0:
             counter = 0
             if frame is not None:
+                a=time.time()
                 last_frame, identification = face_rec.main_for_img(frame)
-
-                cv2.imshow('Pose estimation', last_frame)
+                print(time.time()-a)
+                cv2.imshow('Face recognition', last_frame)
 
                 if cv2.waitKey(1) & 0xFF == ord('q'): 	
                     break

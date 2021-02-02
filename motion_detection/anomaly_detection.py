@@ -1,5 +1,6 @@
-import cv2 # импорт модуля cv2
+import cv2 
 import datetime
+import time
 
 class MoveRec:
     def __init__(self):
@@ -40,7 +41,9 @@ if __name__ == "__main__":
         if counter % 50 == 0:
             counter = 0
             if frame1 is not None:
+                a=time.time()
                 frame1, status = move_rec.main(frame1, frame2)
+                print(time.time()-a)
                 #print(status)
 
                 cv2.imshow('Motion recognition', frame1)

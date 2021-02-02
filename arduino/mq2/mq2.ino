@@ -13,7 +13,7 @@ void setup()
   Serial.begin(9600);
   // включаем нагреватель
   mq2.heaterPwrHigh();
-  //Serial.println("Heated sensor");
+  Serial.println("Heated sensor");
 }
  
 void loop()
@@ -24,29 +24,29 @@ void loop()
     // выполняем калибровку датчика на чистом воздухе
     mq2.calibrate();
     // выводим сопротивление датчика в чистом воздухе (Ro) в serial-порт
-    //Serial.print("Ro = ");
-    //Serial.println(mq2.getRo());
+    Serial.print("Ro = ");
+    Serial.println(mq2.getRo());
   }
   // если прошёл интервал нагрева датчика
   // и калибровка была совершена
   if (mq2.isCalibrated() && mq2.heatingCompleted()) {
     // выводим отношения текущего сопротивление датчика
     // к сопротивлению датчика в чистом воздухе (Rs/Ro)
-    //Serial.print("Ratio: ");
-    //Serial.print(mq2.readRatio());
+    Serial.print("Ratio: ");
+    Serial.print(mq2.readRatio());
     // выводим значения газов в ppm
-    //Serial.print("LPG: ");
-    //Serial.print(mq2.readLPG());
-    //Serial.print(" ppm ");
-    //Serial.print(" Methane: ");
-    //Serial.print(mq2.readMethane());
-    //Serial.print(" ppm ");
-    //Serial.print(" Smoke: ");
+    Serial.print("LPG: ");
+    Serial.print(mq2.readLPG());
+    Serial.print(" ppm ");
+    Serial.print(" Methane: ");
+    Serial.print(mq2.readMethane());
+    Serial.print(" ppm ");
+    Serial.print(" Smoke: ");
     Serial.println(mq2.readSmoke());
-    //Serial.print(" ppm ");
-    //Serial.print(" Hydrogen: ");
-    //Serial.print(mq2.readHydrogen());
-    //Serial.println(" ppm ");
+    Serial.print(" ppm ");
+    Serial.print(" Hydrogen: ");
+    Serial.print(mq2.readHydrogen());
+    Serial.println(" ppm ");
     delay(10);
   }
 }
